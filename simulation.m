@@ -52,9 +52,6 @@ function [Ts VALS] = simulation(k, m, l0, g, ...
         Ts      = [Ts; Ts1];
         VALS    = [VALS; VALS1];
 
-        disp (i);
-        [phi_f, pi/2 - 0.1]
-        abs(phi_f) >= pi/2 - 0.1
         if (abs(phi_f) >= pi/2 - 0.1) % Some tolerance included
             disp ('breaking');
             break;
@@ -89,15 +86,12 @@ function [Ts VALS] = simulation(k, m, l0, g, ...
         x_f         = VALS2(end,7);
         y_f         = VALS2(end,8);
 
-        disp(i);
         % Starting values for stand phase
         if (x_dot_f >= 0) % It's still traveling forward, will continue bouncing
             l_dot_0     = x_dot_f*sin(phi_f) + y_dot_f*cos(phi_f);
             phi_dot_0   = (x_dot_f*cos(phi_f) + y_dot_f*sin(phi_f)) / l_f;
-            disp ('if');
         else % It's moving backwards, going to fall over
             l_dot_0 = 0; % Spring won't compress
-            disp ('else');
             phi_dot_0   = (x_dot_f*cos(-phi_f) + y_dot_f*sin(-phi_f));
         end
         l_0         = l0;
