@@ -14,21 +14,24 @@ function [Ts VALS] = simulation(k, m, l0, g, ...
     % VALS(:,7) is x
     % VALS(:,8) is y
 
-    func_stand = stand_sim_gen (k, m, l0);
+    func_stand = stand_sim_gen (k, m, l0, g);
     func_flight = flight_sim_gen (g);
 
     function [val, isterm, dir] = events_stand(t, Vals)
         % Standing ends when spring force is 0 (i.e. when spring returns to original length)
         % Ends sim if the spring falls over (i.e. phi > pi/2 or phi < -pi/2)
         val     = [ Vals(3) - l0; ...       % is spring force 0?
-                    abs(Vals(4)) - pi/2];   % has spring fallen over?
+                    abs(Vals(4)) - pi/2;    % has spring fallen over?
+                    Vals(3)];               % has the spring collapsed?
         isterm  = [ Vals(2) > 0; ...
+                    1;
                     1];
         dir     = [ 1; ...
-                    1];
+                    1;
+                    0];
     end
     function [val, isterm, dir] = events_flight(t, Vals)
-        % Standing ends when base of spring makes contact with the ground again (i.e. when y=0)
+        % Flight ends when base of spring makes contact with the ground again (i.e. when y=0)
         val     = Vals(8);
         isterm  = 1;
         dir     = -1;
@@ -38,7 +41,7 @@ function [Ts VALS] = simulation(k, m, l0, g, ...
 
         %% STANDING PHASE
         % In this part of simulation, x_dot,y_dot,x,y are unchanging
-        [Ts1 VALS1] = ode45(func_stand, [Ts(end) 100], [l_dot_0; phi_dot_0; l_0; phi_0; x_dot_0; y_dot_0; x_0; y_0], ...
+        [Ts1 VALS1] = ode45(func_stand, [Ts(end), Ts(end)+10], [l_dot_0; phi_dot_0; l_0; phi_0; x_dot_0; y_dot_0; x_0; y_0], ...
                             odeset('Events', @events_stand));
 
         % End values from stand phase
@@ -53,7 +56,7 @@ function [Ts VALS] = simulation(k, m, l0, g, ...
         VALS    = [VALS; VALS1];
 
         if (abs(phi_f) >= pi/2 - 0.1) % Some tolerance included
-            disp ('breaking');
+            disp ('breaking. fallen over in standing.');
             break;
         end
 
@@ -73,7 +76,7 @@ function [Ts VALS] = simulation(k, m, l0, g, ...
 
         %% FLIGHT PHASE
         % In this part of simulation, l_dot,phi_dot,l,phi are unchanging
-        [Ts2 VALS2] = ode45(func_flight, [Ts1(end) 100], [l_dot_0; phi_dot_0; l0; phi_0; x_dot_0; y_dot_0; x_0; y_0], ...
+        [Ts2 VALS2] = ode45(func_flight, [Ts1(end), Ts1(end)+10], [l_dot_0; phi_dot_0; l0; phi_0; x_dot_0; y_dot_0; x_0; y_0], ...
                             odeset('Events', @events_flight));
 
         % End values from flight phase
@@ -85,6 +88,11 @@ function [Ts VALS] = simulation(k, m, l0, g, ...
         y_dot_f     = VALS2(end,6); 
         x_f         = VALS2(end,7);
         y_f         = VALS2(end,8);
+        
+        if (y_f < -0.1) % Some tolerance included
+            disp ('breaking. y too low in flight');
+            break;
+        end
 
         % Starting values for stand phase
         if (x_dot_f >= 0) % It's still traveling forward, will continue bouncing

@@ -40,6 +40,7 @@ Phis    = VALS(:,4);
 Xs      = VALS(:,7);
 Ys      = VALS(:,8);
 
+% This is the running simulation
 figure();
 hold on;
 xlim ([min(Xs)-l0, max(Xs)+l0]);
@@ -54,7 +55,14 @@ for i=2:length(Ts)
 end
 hold off;
 
+% Plot the phase plane
 figure();
 plot(Phis, Ls, 'o-');
+xlabel('\phi');
+ylabel('Length of spring');
+
+% Plot the Xs and Ys.
 figure();
 plot(Xs, Ys, 'o-');
+xlabel('X');
+ylabel('Y');
