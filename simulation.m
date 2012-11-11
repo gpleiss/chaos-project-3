@@ -51,6 +51,8 @@ function [Ts VALS] = simulation(k, m, l0, g, ...
         phi_f       = VALS1(end,4);
         x_f         = VALS1(end,7); % Should remain unchanged
         y_f         = VALS1(end,8); % Should remain unchanged
+        
+        Energy = 1/2 * m * (l_dot_f^2 + l_f*phi_dot_f^2)
 
         Ts      = [Ts; Ts1];
         VALS    = [VALS; VALS1];
@@ -88,6 +90,8 @@ function [Ts VALS] = simulation(k, m, l0, g, ...
         y_dot_f     = VALS2(end,6); 
         x_f         = VALS2(end,7);
         y_f         = VALS2(end,8);
+        
+        Energy = 1/2 * m * (x_dot_f^2 + y_dot_f^2)
         
         if (y_f < -0.1) % Some tolerance included
             disp ('breaking. y too low in flight');
