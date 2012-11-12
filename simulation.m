@@ -4,7 +4,7 @@ function [Ts VALS] = simulation(k, m, l0, g, ...
                                 num_bounces)
 
     Ts = [0];
-    VALS = [0 0 0 0 0 0 0 0];
+    VALS = [l_dot_0, phi_dot_0, l_0, phi_0, x_dot_0, y_dot_0, x_0, y_0];
     % VALS(:,1) is l_dot
     % VALS(:,2) is phi_dot
     % VALS(:,3) is l
@@ -41,7 +41,7 @@ function [Ts VALS] = simulation(k, m, l0, g, ...
 
         %% STANDING PHASE
         % In this part of simulation, x_dot,y_dot,x,y are unchanging
-        [Ts1 VALS1] = ode45(func_stand, [Ts(end), Ts(end)+10], [l_dot_0; phi_dot_0; l_0; phi_0; x_dot_0; y_dot_0; x_0; y_0], ...
+        [Ts1 VALS1] = ode45(func_stand, [Ts(end), Ts(end)+20], [l_dot_0; phi_dot_0; l_0; phi_0; x_dot_0; y_dot_0; x_0; y_0], ...
                             odeset('Events', @events_stand));
 
         % End values from stand phase
@@ -51,21 +51,25 @@ function [Ts VALS] = simulation(k, m, l0, g, ...
         phi_f       = VALS1(end,4);
         x_f         = VALS1(end,7); % Should remain unchanged
         y_f         = VALS1(end,8); % Should remain unchanged
-        
-        Energy = 1/2 * m * (l_dot_f^2 + l_f*phi_dot_f^2)
+        disp('POST STANDING');
+        Energy = 1/2 * m * (l_dot_f^2 + (l_f*phi_dot_f)^2) + m * g * (l_f * cos(phi_f))
 
         Ts      = [Ts; Ts1];
+%         [phi_f, l_f, phi_dot_f, l_dot_f]
         VALS    = [VALS; VALS1];
 
         if (abs(phi_f) >= pi/2 - 0.1) % Some tolerance included
+            disp('cool');
+            [x_f, y_f, phi_f, l_f]
             disp ('breaking. fallen over in standing.');
             break;
         end
 
 
         % Starting values for flight phase
-        x_dot_0 = l_dot_f*sin(phi_f);
-        y_dot_0 = l_dot_f*cos(phi_f);
+        % velocity comes from the spring motion and the rotational change.
+        x_dot_0 = l_dot_f*sin(phi_f) + phi_dot_f * l_f * cos(phi_f);
+        y_dot_0 = l_dot_f*cos(phi_f) - phi_dot_f * l_f * sin(phi_f);
         % Assumption made in paper: coords of spring top are same as at end of flight phase
         % but coords of spring bottom reset themselves so that phi_0, l_0 are the same as
         % at the beginning of the stand phase
@@ -75,10 +79,16 @@ function [Ts VALS] = simulation(k, m, l0, g, ...
         phi_dot_0   = 0;
         l_0         = l0;
         %phi_0      = phi_0;
+        
+        % validate that the energy is the same after the conversion to
+        % coords
+        disp('PREFLIGHT');
+         [x_0, y_0, x_dot_0, y_dot_0]
+        Energy = 1/2 * m * (x_dot_0^2 + y_dot_0^2) + m * g * (y_0 + l0 * cos(phi_0))
 
         %% FLIGHT PHASE
         % In this part of simulation, l_dot,phi_dot,l,phi are unchanging
-        [Ts2 VALS2] = ode45(func_flight, [Ts1(end), Ts1(end)+10], [l_dot_0; phi_dot_0; l0; phi_0; x_dot_0; y_dot_0; x_0; y_0], ...
+        [Ts2 VALS2] = ode45(func_flight, [Ts1(end), Ts1(end)+20], [l_dot_0; phi_dot_0; l0; phi_0; x_dot_0; y_dot_0; x_0; y_0], ...
                             odeset('Events', @events_flight));
 
         % End values from flight phase
@@ -91,7 +101,9 @@ function [Ts VALS] = simulation(k, m, l0, g, ...
         x_f         = VALS2(end,7);
         y_f         = VALS2(end,8);
         
-        Energy = 1/2 * m * (x_dot_f^2 + y_dot_f^2)
+        disp('POST FLIGHT')
+        [x_f, y_f, x_dot_f, y_dot_f]
+        Energy = 1/2 * m * (x_dot_f^2 + y_dot_f^2) + m * g * (y_f + l_f * cos(phi_f))
         
         if (y_f < -0.1) % Some tolerance included
             disp ('breaking. y too low in flight');
@@ -101,7 +113,7 @@ function [Ts VALS] = simulation(k, m, l0, g, ...
         % Starting values for stand phase
         if (x_dot_f >= 0) % It's still traveling forward, will continue bouncing
             l_dot_0     = x_dot_f*sin(phi_f) + y_dot_f*cos(phi_f);
-            phi_dot_0   = (x_dot_f*cos(phi_f) + y_dot_f*sin(phi_f)) / l_f;
+            phi_dot_0   = (x_dot_f*cos(phi_f) - y_dot_f*sin(phi_f)) / l_f;
         else % It's moving backwards, going to fall over
             l_dot_0 = 0; % Spring won't compress
             phi_dot_0   = (x_dot_f*cos(-phi_f) + y_dot_f*sin(-phi_f));
@@ -112,7 +124,11 @@ function [Ts VALS] = simulation(k, m, l0, g, ...
         y_dot_0     = 0;
         x_0         = x_f;
         y_0         = y_f;
-
+        
+        disp('PRESTANDING');
+        % change of coords validation to polar
+        Energy = 1/2 * m * (l_dot_0^2 + (l_f*phi_dot_0)^2) + m * g * (l_0 * cos(phi_0) + y_0)
+%         [phi_0, l_0, phi_dot_0, l_dot_0]
         %% OUTPUT VALUES
         Ts      = [Ts; Ts2];
         VALS    = [VALS; VALS2];

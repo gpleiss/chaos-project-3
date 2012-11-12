@@ -2,15 +2,15 @@ close all;
 clear all;
 clc;
 
-k   = 10;      % Spring const, N/m
+k   = 1000;      % Spring const, N/m
 m   = 1;     % Mass of system, kg
 l0  = 0.1;      % Uncompressed spring length, in m
 g   = 9.8;      % Grav. const, m/s^2
 
 l_dot_0     = -3;       % Initial speed of spring compression, m/s
-phi_dot_0   = 20;       % Initial ang vel of spring, rad/s
+phi_dot_0   = 1.3    ;       % Initial ang vel of spring, rad/s
 l_0         = l0;       % Initial length of spring, m
-phi_0       = -pi/3;    % Initial ang of spring (to vertical), rad
+phi_0       = -pi/4;    % Initial ang of spring (to vertical), rad
 x_dot_0     = 0;        % Change in x-coord of spring base, m/s
 y_dot_0     = 0;        % Change in y-coord of spring base, m/s
 x_0         = 0.1;      % x-coord of spring base, m
