@@ -1,8 +1,9 @@
-function [Ts VALS] = simulation(k, m, l0, g, ...
-                                l_dot_0, phi_dot_0, l_0, phi_0, ...
-                                x_dot_0, y_dot_0,   x_0, y_0, ...
-                                num_bounces)
+function [Ts VALS num_bounces_completed] = simulation(k, m, l0, g, ...
+                                                      l_dot_0, phi_dot_0, l_0, phi_0, ...
+                                                      x_dot_0, y_dot_0,   x_0, y_0, ...
+                                                      num_bounces)
 
+    num_bounces_completed = 0;
     Ts = [0];
     VALS = [l_dot_0, phi_dot_0, l_0, phi_0, x_dot_0, y_dot_0, x_0, y_0];
     % VALS(:,1) is l_dot
@@ -51,16 +52,15 @@ function [Ts VALS] = simulation(k, m, l0, g, ...
         phi_f       = VALS1(end,4);
         x_f         = VALS1(end,7); % Should remain unchanged
         y_f         = VALS1(end,8); % Should remain unchanged
-        disp('POST STANDING');
-        Energy = 1/2 * m * (l_dot_f^2 + (l_f*phi_dot_f)^2) + m * g * (l_f * cos(phi_f))
+        
+        % disp('POST STANDING');
+        % Energy = 1/2 * m * (l_dot_f^2 + (l_f*phi_dot_f)^2) + m * g * (l_f * cos(phi_f))
 
+        %% OUTPUT VALUES
         Ts      = [Ts; Ts1];
-%         [phi_f, l_f, phi_dot_f, l_dot_f]
         VALS    = [VALS; VALS1];
 
         if (abs(phi_f) >= pi/2 - 0.1) % Some tolerance included
-            disp('cool');
-            [x_f, y_f, phi_f, l_f]
             disp ('breaking. fallen over in standing.');
             break;
         end
@@ -77,14 +77,11 @@ function [Ts VALS] = simulation(k, m, l0, g, ...
         y_0         = l_f*cos(phi_f) - l0*cos(phi_0) + y_f;
         l_dot_0     = 0;
         phi_dot_0   = 0;
-        l_0         = l0;
+        %l_0         = l0;
         %phi_0      = phi_0;
         
-        % validate that the energy is the same after the conversion to
-        % coords
-        disp('PREFLIGHT');
-         [x_0, y_0, x_dot_0, y_dot_0]
-        Energy = 1/2 * m * (x_dot_0^2 + y_dot_0^2) + m * g * (y_0 + l0 * cos(phi_0))
+        % disp('PREFLIGHT');
+        % Energy = 1/2 * m * (x_dot_0^2 + y_dot_0^2) + m * g * (y_0 + l0 * cos(phi_0))
 
         %% FLIGHT PHASE
         % In this part of simulation, l_dot,phi_dot,l,phi are unchanging
@@ -92,8 +89,8 @@ function [Ts VALS] = simulation(k, m, l0, g, ...
                             odeset('Events', @events_flight));
 
         % End values from flight phase
-        l_dot_f     = VALS2(end,1); % Should be 0 
-        phi_dot_f   = VALS2(end,2); % Should be 0
+        %l_dot_f     = VALS2(end,1); % Should be 0 
+        %phi_dot_f   = VALS2(end,2); % Should be 0
         l_f         = VALS2(end,3); % Should remain unchanged
         phi_f       = VALS2(end,4); % Should remain unchanged 
         x_dot_f     = VALS2(end,5);
@@ -101,9 +98,8 @@ function [Ts VALS] = simulation(k, m, l0, g, ...
         x_f         = VALS2(end,7);
         y_f         = VALS2(end,8);
         
-        disp('POST FLIGHT')
-        [x_f, y_f, x_dot_f, y_dot_f]
-        Energy = 1/2 * m * (x_dot_f^2 + y_dot_f^2) + m * g * (y_f + l_f * cos(phi_f))
+        % disp('POST FLIGHT')
+        % Energy = 1/2 * m * (x_dot_f^2 + y_dot_f^2) + m * g * (y_f + l_f * cos(phi_f))
         
         if (y_f < -0.1) % Some tolerance included
             disp ('breaking. y too low in flight');
@@ -119,19 +115,18 @@ function [Ts VALS] = simulation(k, m, l0, g, ...
             phi_dot_0   = (x_dot_f*cos(-phi_f) + y_dot_f*sin(-phi_f));
         end
         l_0         = l0;
-        phi_0       = phi_0;
+        %phi_0       = phi_0;
         x_dot_0     = 0;
         y_dot_0     = 0;
         x_0         = x_f;
         y_0         = y_f;
         
-        disp('PRESTANDING');
-        % change of coords validation to polar
-        Energy = 1/2 * m * (l_dot_0^2 + (l_f*phi_dot_0)^2) + m * g * (l_0 * cos(phi_0) + y_0)
-%         [phi_0, l_0, phi_dot_0, l_dot_0]
+        % disp('PRESTANDING');
+        % Energy = 1/2 * m * (l_dot_0^2 + (l_f*phi_dot_0)^2) + m * g * (l_0 * cos(phi_0) + y_0)
+        
         %% OUTPUT VALUES
         Ts      = [Ts; Ts2];
         VALS    = [VALS; VALS2];
-
+        num_bounces_completed = num_bounces_completed + 1;
     end
 end

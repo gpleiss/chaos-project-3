@@ -1,6 +1,5 @@
-close all;
+prep;
 clear all;
-clc;
 
 % Parameters of system
 k   = 1000;     % Spring const, N/m
@@ -18,7 +17,7 @@ y_dot_0     = 0;        % Change in y-coord of spring base, m/s
 x_0         = 0;        % x-coord of spring base, m
 y_0         = 0;        % y-coord of spring base, m
 
-num_bounces = 25; % How many steps/strides/bounces should system make?
+num_bounces = 5; % How many steps/strides/bounces should system make?
 
 
 %% RUN SIMULATION
@@ -44,6 +43,9 @@ Ys      = VALS(:,8);
 
 % This is the running simulation
 figure();
+title('Simulation');
+xlabel('X');
+ylabel('Y');
 hold on;
 xlim ([min(Xs)-l0, max(Xs)+l0]);
 % ylim ([0, max(Ys)+l0]);
@@ -61,11 +63,13 @@ hold off;
 % Plot the phase plane
 figure();
 plot(Phis, Ls, 'o-');
+title('Phase plane');
 xlabel('\phi');
 ylabel('Length of spring');
 
 % Plot the Xs and Ys.
 figure();
 plot(Xs, Ys, 'o-');
+title('Trajectory');
 xlabel('X');
 ylabel('Y');
