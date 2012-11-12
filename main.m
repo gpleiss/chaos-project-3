@@ -7,8 +7,8 @@ m   = 1;     % Mass of system, kg
 l0  = 0.1;      % Uncompressed spring length, in m
 g   = 9.8;      % Grav. const, m/s^2
 
-l_dot_0     = -3;       % Initial speed of spring compression, m/s
-phi_dot_0   = 1.3    ;       % Initial ang vel of spring, rad/s
+l_dot_0     = -2;       % Initial speed of spring compression, m/s
+phi_dot_0   = 10    ;       % Initial ang vel of spring, rad/s
 l_0         = l0;       % Initial length of spring, m
 phi_0       = -pi/4;    % Initial ang of spring (to vertical), rad
 x_dot_0     = 0;        % Change in x-coord of spring base, m/s
