@@ -1,9 +1,10 @@
-function [Ts VALS num_bounces_completed] = simulation(k, m, l0, g, ...
-                                                      l_dot_0, phi_dot_0, l_0, phi_0, ...
-                                                      x_dot_0, y_dot_0,   x_0, y_0, ...
-                                                      num_bounces)
+function [Ts VALS num_bounces_completed failure_mode] = simulation(k, m, l0, g, ...
+                                                                   l_dot_0, phi_dot_0, l_0, phi_0, ...
+                                                                   x_dot_0, y_dot_0,   x_0, y_0, ...
+                                                                   num_bounces)
 
     num_bounces_completed = 0;
+    failure_mode = 'n'; % Signifies no failure has occured - will change if system falls over
     Ts = [0];
     VALS = [l_dot_0, phi_dot_0, l_0, phi_0, x_dot_0, y_dot_0, x_0, y_0];
     % VALS(:,1) is l_dot
@@ -61,7 +62,8 @@ function [Ts VALS num_bounces_completed] = simulation(k, m, l0, g, ...
         VALS    = [VALS; VALS1];
 
         if (abs(phi_f) >= pi/2 - 0.1) % Some tolerance included
-            disp ('breaking. fallen over in standing.');
+            failure_mode = 'b'; % Fallen over backwards
+            disp ('breaking. Fallen over backwards.'); % Fallen over in standint -> fallen over backwards
             break;
         end
 
@@ -102,7 +104,8 @@ function [Ts VALS num_bounces_completed] = simulation(k, m, l0, g, ...
         % Energy = 1/2 * m * (x_dot_f^2 + y_dot_f^2) + m * g * (y_f + l_f * cos(phi_f))
         
         if (y_f < -0.1) % Some tolerance included
-            disp ('breaking. y too low in flight');
+            failure_mode = 'f'; % Fallen over forwards
+            disp ('breaking. fell over forwards'); % y too low in flight -> fell over forwards
             break;
         end
 
