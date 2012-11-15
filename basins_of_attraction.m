@@ -21,9 +21,9 @@ fallen_backwards = 1;
 fallen_forwards = 2;
 
 % Initial conditions to vary
-L_dot_0_vals    = linspace(0, -20, 41);   % Initial speed of spring compression, m/s
-Phi_dot_0_vals  = linspace(0, 20, 41);        % Initial ang vel of spring, rad/s
-Phi_0_vals      = linspace(-pi/2, 0, 17);    % Initial ang of spring (to vertical), rad
+L_dot_0_vals    = linspace(-.2, -.5, 41);   % Initial speed of spring compression, m/s
+Phi_dot_0_vals  = linspace(7, 11.5, 41);        % Initial ang vel of spring, rad/s
+Phi_0_vals      = [-9*pi/32];%linspace(-pi/2, 0, 17);`    % Initial ang of spring (to vertical), rad
 [L_DOT_0S, PHI_DOT_0S, PHI_0S] = meshgrid(L_dot_0_vals, Phi_dot_0_vals, Phi_0_vals);
 NUM_BOUNCES_COMPLETED = zeros(size(L_DOT_0S));
 FAILURE_MODE = zeros(size(NUM_BOUNCES_COMPLETED));
